@@ -16,6 +16,9 @@ from pynput import keyboard
 from faster_whisper import WhisperModel
 
 from .text import clean_text
+from . import config as _config
+
+_cfg = _config.load_config()
 
 # --- Guardia de instancia única (antes de importar nada pesado) ---
 _k32 = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -24,7 +27,7 @@ if ctypes.get_last_error() == 183:   # ERROR_ALREADY_EXISTS
     sys.exit(0)
 
 # --- Config (variables de entorno, opcional) ---
-MODEL      = os.getenv("DICTATE_MODEL", "small")
+MODEL      = os.getenv("DICTATE_MODEL", _cfg.get("model", "small"))
 DEVICE     = "cpu"
 COMPUTE    = "int8"
 SR         = 16000

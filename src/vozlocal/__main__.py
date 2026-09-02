@@ -1,18 +1,33 @@
 # -*- coding: utf-8 -*-
-"""vozlocal.__main__ — punto de entrada: arranca la ventana del overlay y el listener.
+"""vozlocal.__main__ — punto de entrada: arranca el overlay, el listener y aplica config.
 
 Ejecuta:  python -m vozlocal   (con PYTHONPATH apuntando a ./src)
 """
 import tkinter as tk
 from pynput import keyboard
 
+from . import config, autostart
 from . import dictation
 from .overlay import Overlay
+from .settings import SettingsWindow
 
 
 def main():
+    cfg = config.load_config()
+    # aplicar la preferencia de auto-inicio con Windows (crea/elimina el .vbs en Inicio)
+    autostart.set_autostart(bool(cfg.get("autostart", True)))
+
     root = tk.Tk()
-    dictation.ui = Overlay(root, dictation._state)
+
+    def open_settings():
+        SettingsWindow(root, cfg, on_apply=_on_apply)
+
+    def _on_apply(new_cfg):
+        ui.apply_cfg(new_cfg)
+
+    dictation.ui = Overlay(root, dictation._state, cfg=cfg, open_settings=open_settings)
+    ui = dictation.ui
+
     listener = keyboard.Listener(on_press=dictation.on_press)
     listener.daemon = True
     listener.start()

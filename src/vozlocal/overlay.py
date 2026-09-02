@@ -15,9 +15,11 @@ class Overlay:
     W, H, R = 252, 40, 20
     _INVIS = "#010203"   # color que Tk hace transparente en Windows → solo el pill queda
 
-    def __init__(self, root, state):
+    def __init__(self, root, state, cfg=None, open_settings=None):
         self.root = root
         self.state = state           # dict compartido con dictation (lee "level")
+        self._show_bars = bool((cfg or {}).get("bars", True))
+        self._open_settings = open_settings
         self.root.overrideredirect(True)                 # sin marco (flotante)
         self.root.attributes("-topmost", True)           # siempre encima
         try:
@@ -30,6 +32,7 @@ class Overlay:
                                 bg=self._INVIS, highlightthickness=0, bd=0)
         self.canvas.pack()
         self.canvas.bind("<Button-1>", lambda e: self._toggle())
+        self.canvas.bind("<Double-Button-1>", lambda e: self._open_settings and self._open_settings())
         self._kind = "idle"
         self._lang = "es"
         self._expand = True
@@ -63,18 +66,26 @@ class Overlay:
         c.create_rectangle(0, r, W, H - r, fill=bg, outline=bg)
         c.create_rectangle(r, r, W - r, H - r, fill=bg, outline=bg)
         if self._kind == "listen":
-            # barritas de nivel de voz A LA DERECHA del texto (estilo visualizador)
-            self._bars = []
-            bx = W - 58
-            for _ in range(5):
-                bid = c.create_rectangle(bx, H - 16, bx + 5, H - 11, fill="#d9ffe9", outline="")
-                self._bars.append(bid)
-                bx += 8
-            self._bar_h = [0.0] * 5
-            c.create_text(22, H // 2, text=text, fill=fg, font=("Segoe UI", 11, "bold"), anchor="w")
+            if self._show_bars:
+                # barritas de nivel de voz A LA DERECHA del texto (estilo visualizador)
+                self._bars = []
+                bx = W - 58
+                for _ in range(5):
+                    bid = c.create_rectangle(bx, H - 16, bx + 5, H - 11, fill="#d9ffe9", outline="")
+                    self._bars.append(bid)
+                    bx += 8
+                self._bar_h = [0.0] * 5
+                c.create_text(22, H // 2, text=text, fill=fg, font=("Segoe UI", 11, "bold"), anchor="w")
+            else:
+                self._bars = []
+                c.create_text(W // 2, H // 2, text=text, fill=fg, font=("Segoe UI", 11, "bold"))
         else:
             self._bars = []
             c.create_text(W // 2, H // 2, text=text, fill=fg, font=("Segoe UI", 11, "bold"))
+
+    def apply_cfg(self, cfg):
+        self._show_bars = bool(cfg.get("bars", True))
+        self._redraw()
 
     def _apply(self, kind, lang=None):
         if lang:
