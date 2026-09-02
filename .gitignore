@@ -18,6 +18,9 @@ models/
 # Env / secrets
 .env
 
+# Runtime config (máquina del usuario)
+config.json
+
 # Editors / OS
 .vscode/
 .idea/
