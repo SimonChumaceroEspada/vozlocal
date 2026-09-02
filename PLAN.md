@@ -33,12 +33,12 @@ PyInstaller en un .exe portable.
 - [ ] Estados extra: "cargando modelo", "microrófono bloqueado" (error).
 - [ ] Config en `config.toml` (o env) en vez de solo variables de entorno.
 
-### Fase 2 — Repo de portafolio
-- [ ] `git init` en `D:\Hermes\dictation\` → estructura de proyecto Python limpia (`src/`, `pyproject.toml`).
-- [ ] `README.md` con la historia + `screenshots/gif` del overlay.
-- [ ] `LICENSE` (MIT) + `CHANGELOG`.
-- [ ] Renombrar módulo a algo público (p. ej. `dictaflow` / `vozlocal`).
-- [ ] Tests mínimos (transcripción de sample, lógica de idioma, guardia de instancia).
+### Fase 2 — Repo de portafolio  ✅
+- ✅ `git init` en `D:\Hermes\dictation\` → estructura de proyecto Python limpia (`src/`, `pyproject.toml`). ✅ hecho
+- ✅ `README.md` con la historia + sección "por qué existe". ✅ hecho
+- ✅ `LICENSE` (MIT) + `.gitignore`. ✅ hecho
+- ✅ Paquete renombrado a **`vozlocal`**. ✅ hecho
+- ✅ Tests mínimos (`tests/test_text.py`, 4 passed). ✅ hecho
 
 ### Fase 3 — Mini GUI (accesible para no-técnicos)
 - [ ] Ventana tkinter simple: elegir idioma (ES/EN), modelo (base/small), bandas de voz on/off,
