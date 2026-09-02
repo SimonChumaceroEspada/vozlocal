@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vozlocal"
+version = "0.1.0"
+description = "Dictado de voz offline (ES/EN), sin nube y sin límites, optimizado para PCs de bajos recursos."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "vozlocal contributors" }]
+keywords = ["dictation", "speech-to-text", "whisper", "offline", "accessibility", "low-resource"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Intended Audience :: End Users/Desktop",
+]
+dependencies = [
+    "faster-whisper>=1.0.0",
+    "sounddevice>=0.4.6",
+    "pynput>=1.7.6",
+    "pyperclip>=1.8.2",
+    "numpy>=1.24",
+]
+
+[project.scripts]
+vozlocal = "vozlocal.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
