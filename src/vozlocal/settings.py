@@ -18,6 +18,7 @@ class SettingsWindow(tk.Toplevel):
         self.var_auto = tk.BooleanVar(value=bool(cfg.get("autostart", True)))
         self.var_model = tk.StringVar(value=cfg.get("model", "small"))
         self.var_bars = tk.BooleanVar(value=bool(cfg.get("bars", True)))
+        self.var_hide = tk.BooleanVar(value=bool(cfg.get("hide_when_idle", True)))
 
         tk.Label(self, text="Dictado de voz · offline", font=("Segoe UI", 12, "bold"),
                  fg="#16a34a").grid(row=0, column=0, columnspan=2, sticky="w", padx=16, pady=(14, 6))
@@ -36,16 +37,22 @@ class SettingsWindow(tk.Toplevel):
         tk.Checkbutton(self, text="Barritas de voz en el aviso", variable=self.var_bars,
                        font=("Segoe UI", 10)).grid(row=3, column=0, columnspan=2, sticky="w", padx=16, pady=(8, 0))
 
+        tk.Checkbutton(self, text="Ocultar el aviso cuando NO estoy dictando",
+                       variable=self.var_hide, font=("Segoe UI", 10)).grid(
+            row=4, column=0, columnspan=2, sticky="w", padx=16, pady=(6, 0))
+        tk.Label(self, text="(con F10 abres estos ajustes aunque esté oculto)",
+                 font=("Segoe UI", 8), fg="#888").grid(row=5, column=0, columnspan=2, sticky="w", padx=20)
+
         btns = tk.Frame(self)
-        btns.grid(row=4, column=0, columnspan=2, pady=(12, 0))
+        btns.grid(row=6, column=0, columnspan=2, pady=(10, 0))
         tk.Button(btns, text="Guardar", command=self._save, width=12,
                   bg="#16a34a", fg="white", activebackground="#128a4a").pack(side="left", padx=6)
         tk.Button(btns, text="Cancelar", command=self.destroy, width=12).pack(side="left", padx=6)
 
         self._status = tk.Label(self, text="", fg="#16a34a", font=("Segoe UI", 9))
-        self._status.grid(row=5, column=0, columnspan=2, pady=(6, 8))
+        self._status.grid(row=7, column=0, columnspan=2, pady=(6, 8))
 
-        self.geometry("340x290")
+        self.geometry("360x340")
         try:
             self.grab_set()
         except Exception:
@@ -55,6 +62,7 @@ class SettingsWindow(tk.Toplevel):
         self.cfg["autostart"] = bool(self.var_auto.get())
         self.cfg["model"] = self.var_model.get()
         self.cfg["bars"] = bool(self.var_bars.get())
+        self.cfg["hide_when_idle"] = bool(self.var_hide.get())
         config.save_config(self.cfg)
         set_autostart(self.cfg["autostart"])
         if self.on_apply:

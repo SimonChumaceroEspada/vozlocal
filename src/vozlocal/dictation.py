@@ -34,6 +34,7 @@ SR         = 16000
 CH         = 1
 KEY_ES     = keyboard.Key.f8
 KEY_EN     = keyboard.Key.f9
+KEY_SETTINGS = keyboard.Key.f10
 FORCE_LANG = os.getenv("DICTATE_LANG")   # 'es'/'en' para fijar el idioma
 VAD        = True
 
@@ -64,7 +65,8 @@ beep(1200, 0.1)
 _state = {"rec": False, "lang": None, "level": 0.0}
 _q = queue.Queue()
 _stream = None
-ui = None   # lo asigna __main__ (instancia de overlay.Overlay)
+ui = None       # lo asigna __main__ (instancia de overlay.Overlay)
+open_settings = None   # lo asigna __main__ (función para abrir Ajustes)
 
 
 def _ui_set(kind, lang=None):
@@ -169,6 +171,10 @@ def stop():
 
 
 def on_press(key):
+    if key == KEY_SETTINGS:
+        if open_settings:
+            open_settings()
+        return
     if key == KEY_ES:
         lang = "es"
     elif key == KEY_EN:

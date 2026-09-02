@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 CONFIG_PATH = Path(__file__).resolve().parents[2] / "config.json"
-DEFAULTS = {"model": "small", "autostart": True, "bars": True}
+DEFAULTS = {"model": "small", "autostart": True, "bars": True, "hide_when_idle": True}
 
 
 def load_config():

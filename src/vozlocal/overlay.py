@@ -19,6 +19,7 @@ class Overlay:
         self.root = root
         self.state = state           # dict compartido con dictation (lee "level")
         self._show_bars = bool((cfg or {}).get("bars", True))
+        self._hide_when_idle = bool((cfg or {}).get("hide_when_idle", True))
         self._open_settings = open_settings
         self.root.overrideredirect(True)                 # sin marco (flotante)
         self.root.attributes("-topmost", True)           # siempre encima
@@ -40,6 +41,8 @@ class Overlay:
         self._bars = []
         self._bar_h = [0.0] * 5
         self._redraw()
+        if self._hide_when_idle:
+            self.root.withdraw()      # al arrancar, si no dictas, el aviso queda oculto
         self.root.after(40, self._tick)
 
     def _palette(self):
@@ -85,7 +88,12 @@ class Overlay:
 
     def apply_cfg(self, cfg):
         self._show_bars = bool(cfg.get("bars", True))
+        self._hide_when_idle = bool(cfg.get("hide_when_idle", True))
         self._redraw()
+        if self._kind == "idle" and self._hide_when_idle:
+            self.root.withdraw()
+        else:
+            self.root.deiconify()
 
     def _apply(self, kind, lang=None):
         if lang:
@@ -100,6 +108,15 @@ class Overlay:
         self._redraw()
         self._base_alpha = 0.72 if kind == "idle" else 0.95
         self.root.attributes("-alpha", self._base_alpha)
+        # ocultar/mostrar según preferencia ("ocultar cuando no dicto")
+        if kind == "idle" and self._hide_when_idle:
+            self.root.withdraw()
+        else:
+            self.root.deiconify()
+            try:
+                self.root.lift()
+            except Exception:
+                pass
 
     def set(self, kind, lang=None):
         # seguro desde hilos: enruta al hilo principal de Tk

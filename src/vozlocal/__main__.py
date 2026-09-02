@@ -20,13 +20,15 @@ def main():
     root = tk.Tk()
 
     def open_settings():
-        SettingsWindow(root, cfg, on_apply=_on_apply)
+        # seguro desde cualquier hilo (doble clic o F10): enruta al hilo Tk
+        root.after(0, lambda: SettingsWindow(root, cfg, on_apply=_on_apply))
 
     def _on_apply(new_cfg):
         ui.apply_cfg(new_cfg)
 
     dictation.ui = Overlay(root, dictation._state, cfg=cfg, open_settings=open_settings)
     ui = dictation.ui
+    dictation.open_settings = open_settings
 
     listener = keyboard.Listener(on_press=dictation.on_press)
     listener.daemon = True
