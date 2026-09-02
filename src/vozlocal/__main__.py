@@ -3,6 +3,7 @@
 
 Ejecuta:  python -m vozlocal   (con PYTHONPATH apuntando a ./src)
 """
+import sys
 import tkinter as tk
 from pynput import keyboard
 
@@ -13,6 +14,14 @@ from .settings import SettingsWindow
 
 
 def main():
+    # Evitar UnicodeEncodeError ('.', '●', '⏳'...) en consola/exe con cp1252
+    for _s in (sys.stdout, sys.stderr):
+        if _s is not None:
+            try:
+                _s.reconfigure(encoding="utf-8", errors="replace")
+            except Exception:
+                pass
+
     cfg = config.load_config()
     # aplicar la preferencia de auto-inicio con Windows (crea/elimina el .vbs en Inicio)
     autostart.set_autostart(bool(cfg.get("autostart", True)))

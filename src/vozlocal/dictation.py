@@ -99,7 +99,7 @@ def start():
         _stream.start()
         beep(880, 0.08)
         _ui_set("listen", _state["lang"] or FORCE_LANG or "es")
-        print(f"● Escuchando ({str(_state['lang'] or FORCE_LANG or 'es').upper()})... "
+        print(f"Escuchando ({str(_state['lang'] or FORCE_LANG or 'es').upper()})... "
               "presiona la tecla para detener y escribir", flush=True)
     except Exception as e:
         _state["rec"] = False
@@ -129,7 +129,7 @@ def stop():
         _ui_set("idle")
         return
     audio = np.concatenate(chunk)
-    print("⏳ transcribiendo...", flush=True)
+    print("transcribiendo...", flush=True)
     _ui_set("trans")
     t0 = time.time()
     lang = FORCE_LANG or _state["lang"] or "es"
