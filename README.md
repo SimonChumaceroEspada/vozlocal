@@ -73,6 +73,19 @@ O simplemente doble clic en `Dictar.bat` (lanzador preconfeccionado).
 
 ---
 
+## ⚙️ Inicio automático con Windows
+
+VozLocal puede arrancar **en segundo plano al encender Windows** (como un "asistente de
+dictado" siempre disponible). El lanzador `Dictar.vbs` es silencioso (sin ventana).
+
+- **Activar:** crea un acceso directo en la carpeta de Inicio de Windows que apunte a
+  `wscript.exe "ruta-al-Dictar.vbs"`.
+- **Desactivar:** elimina ese acceso directo (`Win+R` → `shell:startup`).
+- **Ojo RAM:** en reposo el dictado ocupa ~435 MB (modelo `small`). Si tu PC es de pocos
+  recursos, inícialo manualmente con `Dictar.bat` solo cuando lo vayas a usar.
+
+---
+
 ## 🧠 ¿Cómo funciona?
 
 - **Motor:** [faster-whisper](https://github.com/SYSTRAN/faster-whisper) en **CPU (int8)**.
@@ -85,6 +98,24 @@ O simplemente doble clic en `Dictar.bat` (lanzador preconfeccionado).
   dibuja como 5 barras con leve jitter, así ves tu voz "en vivo".
 
 ---
+
+## 🖥️ Requisitos de hardware (medidos)
+
+VozLocal **no necesita GPU**. Todo corre en la CPU. (Medido en esta misma máquina:
+Intel i5-4460, 4 núcleos, GTX 750 Ti.)
+
+| Requisito | Mínimo | Recomendado (probado) |
+|---|---|---|
+| CPU | 2 núcleos x64 | **4 núcleos** (i5-4460 @3.2 GHz) |
+| RAM del sistema | 4 GB | 8 GB |
+| **RAM en uso (dictado)** | ~200 MB (modelo `base`) | **~435 MB** (modelo `small`) |
+| GPU | ❌ No requerida (CPU int8) | ❌ No requerida |
+| Disco libre | ~1 GB | ~2 GB |
+| SO | Windows 10 (64-bit) | Windows 11 |
+| Micrófono | Cualquiera | USB de buena calidad |
+
+> 💡 Menos es más: con modelo `base` consumes ~200 MB y es más rápido al transcribir,
+> a costa de algo de precisión. `small` (default) es el equilibrio.
 
 ## 🖥️ En hardware humilde
 
