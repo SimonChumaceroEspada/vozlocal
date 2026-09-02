@@ -45,9 +45,9 @@ PyInstaller en un .exe portable.
       botón "Iniciar/Detener", indicador de estado y hotkeys.
 - [ ] La GUI sustituye al chip cuando se abre; opción a "modo minimalista" (solo chip).
 
-### Fase 4 — Distribución
-- [ ] Build con PyInstaller → `dictaflow.exe` portable (una carpeta, sin instalar Python).
-- [ ] Guía "cómo corrió esto en una GTX 750 Ti" (caso de éxito) → gran pieza de README.
+### Fase 4 — Distribución  ✅
+- ✅ Build con PyInstaller → `VozLocal.exe` portable (onedir, windowed). ✅ hecho
+- ✅ Guía "cómo compilar el .exe" en README. ✅ hecho
 
 ### Fase 5 — Lanzamiento / portafolio
 - [ ] Push a GitHub (repo público).

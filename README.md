@@ -144,6 +144,23 @@ Probado en una **NVIDIA GTX 750 Ti (2 GB, Maxwell)** con CPU:
 
 ---
 
+## 📦 Compilar un `.exe` portable (PyInstaller)
+
+Para que cualquiera lo corra **sin instalar Python**:
+
+```bash
+pip install pyinstaller
+pyinstaller --noconfirm --windowed --onedir --name VozLocal --paths src \
+  --collect-all ctranslate2 --collect-all faster_whisper --collect-all av \
+  --collect-all sounddevice --collect-all pynput --hidden-import pyperclip entry.py
+```
+
+Resultado: carpeta `dist\VozLocal\` con `VozLocal.exe` (copiar la carpeta = portable).
+
+- **Modelo:** se descarga **una vez** en el primer arranque (requiere internet esa vez; queda en la caché).
+- **Copiar la carpeta entera** (no solo el .exe) — las librerías nativas van al lado.
+- El punto de entrada `entry.py` está en la raíz del repo.
+
 ## 🧪 Tests
 
 ```bash

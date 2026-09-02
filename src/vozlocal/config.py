@@ -1,9 +1,24 @@
 # -*- coding: utf-8 -*-
-"""vozlocal.config — configuración persistente (config.json en la raíz del repo)."""
+"""vozlocal.config — configuración persistente.
+
+En modo desarrollo (python -m vozlocal) se guarda en la raíz del repo.
+En modo ejecutable (PyInstaller, sys.frozen) se guarda en %APPDATA%\\VozLocal.
+"""
 import json
+import os
+import sys
 from pathlib import Path
 
-CONFIG_PATH = Path(__file__).resolve().parents[2] / "config.json"
+
+def _config_path():
+    if getattr(sys, "frozen", False):
+        base = Path(os.environ.get("APPDATA", str(Path.home()))) / "VozLocal"
+        base.mkdir(parents=True, exist_ok=True)
+        return base / "config.json"
+    return Path(__file__).resolve().parents[2] / "config.json"
+
+
+CONFIG_PATH = _config_path()
 DEFAULTS = {"model": "small", "autostart": True, "bars": True, "hide_when_idle": True}
 
 
