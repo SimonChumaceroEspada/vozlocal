@@ -1,176 +1,205 @@
-# 🎙️ VozLocal — dictado offline para PCs de bajos recursos
+# VozLocal - offline dictation for low-end PCs
 
-> **Habla. Escribe. Sin nube, sin límites, sin GPU.**
+> **Speak. It types. No cloud, no limits, no GPU.**
 
-VozLocal es un dictado de voz **100% offline** en **español e inglés** pensado para
-**computadoras viejas**. Corre, literalmente, en una **GTX 750 Ti de 2014** con CPU —
-sin tarjeta de video, sin internet y sin pagar suscripción.
+VozLocal is 100% offline voice dictation in **Spanish and English**, built for **old
+computers**. It runs on a 2014-era machine (NVIDIA GTX 750 Ti, Maxwell) using the **CPU
+only**: no GPU, no internet, no subscription.
 
-*(captura del overlay en `assets/overlay.png` — próximamente)*
-
----
-
-## ✨ Por qué existe
-
-Los dictados modernos (Wispr Flow, etc.) mandan tu voz a la nube y cobran por palabra
-o por mes. VozLocal hace lo contrario:
-
-- 🔒 **Tu voz nunca sale de tu PC** — privacidad total.
-- 🪙 **Gratis e ilimitado** — cero suscripción, cero límites de palabras.
-- 💻 **Corre en hardware humilde** — diseñado y probado en una GTX 750 Ti (CPU-int8).
-- 🎧 **ES + EN** — dos teclas, un idioma fiable cada vez (nada de detecciones fallidas).
-- ⚡ **Feedback visual en vivo** — un colgante que te muestra *escuchando*, con barritas
-  que reaccionan a tu voz real (RMS del micrófono).
+**Stack:** Python 3.10+ · faster-whisper (CPU int8) · tkinter · sounddevice · pynput
 
 ---
 
-## 🚀 Empezar
+## Why it exists
 
-### Requisitos
-- Windows 10/11
+Modern dictation tools send your voice to the cloud and charge per word or per month.
+VozLocal does the opposite:
+
+- **Your voice never leaves your PC.** Nothing is uploaded, ever.
+- **Free and unlimited.** No subscription, no word cap.
+- **Runs on humble hardware.** Designed and measured on a 4-core i5-4460 with a GTX 750 Ti.
+- **ES + EN, one reliable language per key.** Each hotkey *forces* the language instead of
+  auto-detecting, which is slow and error-prone on modest hardware.
+- **Live visual feedback.** A floating pill shows *listening*, with five bars driven by the
+  real RMS of your microphone.
+
+---
+
+## Quick start
+
+### Requirements
+
+- Windows 10/11 (64-bit)
 - Python 3.10+
-- Un micrófono
+- A microphone
 
-### Instalar dependencias
+### Install
+
 ```bash
 pip install faster-whisper sounddevice pynput pyperclip numpy
 ```
 
-### Ejecutar
+### Run
+
 ```bash
-# desde la carpeta del repo
+# from the repo root
 set PYTHONPATH=%CD%\src
 python -m vozlocal
 ```
 
-O simplemente doble clic en `Dictar.bat` (lanzador preconfeccionado).
+Or double-click `Dictar.bat`, a ready-made launcher. The Whisper model is downloaded **once**
+on first start (that first run needs internet, after that it is cached).
 
 ---
 
-## 🎮 Cómo se usa
+## How to use
 
-| Tecla | Acción |
+| Key | Action |
 |---|---|
-| **F8** | Dictar en **español** (pulsa para empezar, pulsa de nuevo para escribir) |
-| **F9** | Dictar en **inglés** (ídem) |
+| **F8** | Dictate in **Spanish** (press to start, press again to write) |
+| **F9** | Dictate in **English** (same behaviour) |
 
-1. Haz clic en el campo de texto donde quieras escribir (Word, navegador, bloc de notas…).
-2. Pulsa **F8** (o **F9**), habla en frases cortas, pulsa la MISMA tecla de nuevo.
-3. VozLocal transcribe y **pega el texto en tu app**. El colgante te va indicando el estado.
+1. Click the text field where you want to write (Word, browser, Notepad, anything).
+2. Press **F8** (or **F9**), speak in short sentences, press the SAME key again.
+3. VozLocal transcribes and **pastes the text into your app**.
 
-### El colgante (indicador)
-- `🎙️ F8=ES · F9=EN` — inactivo (pill oscuro).
-- `Escuchando (ES)` — pill verde con **5 barritas** que siguen tu voz.
-- `⏳ Transcribiendo…` — ámbar.
-- `✓ Listo` — verde, texto escrito.
-- **Clic en el colgante** = colapsar/expandir.
+### The overlay pill
 
-### Atajos y configuración (variables de entorno)
-| Variable | Valores | Default | Qué hace |
+| State | What you see |
+|---|---|
+| Idle | `F8=ES · F9=EN` dark pill |
+| Recording | `Escuchando (ES)` green pill, 5 bars following your voice |
+| Processing | `Transcribiendo…` amber |
+| Done | `Listo` green, text already written |
+
+Click the pill to collapse or expand it.
+
+---
+
+## Configuration
+
+Environment variables:
+
+| Variable | Values | Default | Effect |
 |---|---|---|---|
-| `DICTATE_MODEL` | `base` \| `small` | `small` | `base` = más rápido; `small` = más preciso. |
-| `DICTATE_LANG` | `es` \| `en` | auto | Fuerza el idioma (ignora F8/F9). |
+| `DICTATE_MODEL` | `base` \| `small` | `small` | `base` is faster, `small` is more accurate |
+| `DICTATE_LANG` | `es` \| `en` | auto | Forces one language and ignores F8/F9 |
+
+Settings are also persisted to `config.json` (repo root in development,
+`%APPDATA%\VozLocal` when frozen):
+
+```json
+{ "model": "small", "autostart": true, "bars": true, "hide_when_idle": true }
+```
 
 ---
 
-## ⚙️ Inicio automático con Windows
+## How it works
 
-VozLocal puede arrancar **en segundo plano al encender Windows** (como un "asistente de
-dictado" siempre disponible). El lanzador `Dictar.vbs` es silencioso (sin ventana).
+- **Engine:** [faster-whisper](https://github.com/SYSTRAN/faster-whisper) on **CPU with int8
+  quantization**. No GPU is required.
+- **UI:** `tkinter`, a rounded pill on a transparent window that stays on top of every other
+  window.
+- **Reliable language:** each hotkey forces the language instead of auto-detecting.
+- **Voice bars:** the microphone callback computes the **RMS**, smooths it, and the UI draws
+  it as five bars with a slight jitter, so you see your voice live.
+- **Empty GPU is on purpose:** Maxwell cards without FP16 plus CUDA 12/cuDNN 9 make GPU
+  acceleration fragile. CPU int8 is the correct path here, and it keeps the tool portable to
+  machines that have no usable GPU at all.
 
-- **Activar:** crea un acceso directo en la carpeta de Inicio de Windows que apunte a
-  `wscript.exe "ruta-al-Dictar.vbs"`.
-- **Desactivar:** elimina ese acceso directo (`Win+R` → `shell:startup`).
-- **Ojo RAM:** en reposo el dictado ocupa ~435 MB (modelo `small`). Si tu PC es de pocos
-  recursos, inícialo manualmente con `Dictar.bat` solo cuando lo vayas a usar.
+Source layout:
+
+```
+src/vozlocal/
+  __main__.py    entry point and wiring
+  dictation.py   whisper model, microphone, hotkeys, dictation loop
+  overlay.py     tkinter floating pill
+  settings.py    settings window
+  config.py      persistent configuration
+  autostart.py   Windows startup shortcut
+  text.py        transcript cleaning
+tests/           pure tests, no model or display required
+```
 
 ---
 
-## 🧠 ¿Cómo funciona?
+## Performance on humble hardware
 
-- **Motor:** [faster-whisper](https://github.com/SYSTRAN/faster-whisper) en **CPU (int8)**.
-  No necesitas GPU; el modelo `small` transcribe en ~1.5–5s por frase en un CPU de 4 núcleos.
-- **UI:** `tkinter` — un pill redondeado (sobre fondo transparente en Windows) que se queda
-  encima de todas tus ventanas.
-- **Idioma fiable:** cada tecla **fuerza** el idioma en lugar de auto-detectar, que en
-  hardware modesto es lento y se equivoca.
-- **Barritas de voz:** el callback del micrófono calcula el **RMS** y lo suaviza; la UI lo
-  dibuja como 5 barras con leve jitter, así ves tu voz "en vivo".
+Measured on an Intel i5-4460 (4 cores) with a GTX 750 Ti present but unused, transcribing
+about 9 seconds of speech:
 
----
+| Model | Time | Quality | Note |
+|---|---|---|---|
+| `base` | ~2 s | low | fast, but it misses words |
+| **`small`** | **~4.7 s** | **good** | **recommended** (default) |
 
-## 🖥️ Requisitos de hardware (medidos)
+### Hardware requirements
 
-VozLocal **no necesita GPU**. Todo corre en la CPU. (Medido en esta misma máquina:
-Intel i5-4460, 4 núcleos, GTX 750 Ti.)
-
-| Requisito | Mínimo | Recomendado (probado) |
+| Resource | Minimum | Recommended |
 |---|---|---|
-| CPU | 2 núcleos x64 | **4 núcleos** (i5-4460 @3.2 GHz) |
-| RAM del sistema | 4 GB | 8 GB |
-| **RAM en uso (dictado)** | ~200 MB (modelo `base`) | **~435 MB** (modelo `small`) |
-| GPU | ❌ No requerida (CPU int8) | ❌ No requerida |
-| Disco libre | ~1 GB | ~2 GB |
-| SO | Windows 10 (64-bit) | Windows 11 |
-| Micrófono | Cualquiera | USB de buena calidad |
+| CPU | 2 x64 cores | 4 cores (i5-4460 @ 3.2 GHz) |
+| System RAM | 4 GB | 8 GB |
+| RAM while dictating | ~200 MB (`base`) | ~435 MB (`small`) |
+| GPU | not required (CPU int8) | not required |
+| Free disk | ~1 GB | ~2 GB |
+| OS | Windows 10 (64-bit) | Windows 11 |
+| Microphone | any | decent USB |
 
-> 💡 Menos es más: con modelo `base` consumes ~200 MB y es más rápido al transcribir,
-> a costa de algo de precisión. `small` (default) es el equilibrio.
-
-## 🖥️ En hardware humilde
-
-Probado en una **NVIDIA GTX 750 Ti (2 GB, Maxwell)** con CPU:
-
-| Modelo | Tiempo (~9 s de voz) | Calidad | Nota |
-|---|---|---|---|
-| `base` | ~2 s | baja | rápido, pero se equivoca |
-| **`small`** | ~4.7 s | ✅ buena | **recomendado** (default) |
-
-> 💡 ¿GPU vieja? No la necesitas. faster-whisper en CPU-int8 es la vía correcta
-> (las GPUs Maxwell sin FP16 + CUDA 12/cuDNN 9 complican la aceleración). VozLocal
-> elige **CPU** a propósito.
-
-*(captura del overlay en `assets/overlay.png` — próximamente)*
+Speaking in short sentences keeps latency low: transcribe per phrase, not per paragraph.
 
 ---
 
-## 🗺️ Roadmap
+## Start with Windows
 
-- [x] Dictado EN/ES offline con overlay y barritas de voz
-- [ ] Posición / colores del colgante configurables
-- [ ] Transcribir archivos de audio (clips)
-- [ ] Empaquetado como `.exe` portable (PyInstaller)
-- [ ] Puntuación y formato del texto con IA (comas, párrafos, listas)
+VozLocal can launch silently at login, like an always-available dictation assistant.
+`Dictar.vbs` is a windowless launcher.
+
+- **Enable:** create a shortcut to `wscript.exe "path\to\Dictar.vbs"` in your Startup folder
+  (`Win+R` then `shell:startup`).
+- **Disable:** delete that shortcut.
+- **RAM note:** the `small` model holds roughly 435 MB while idle. On a low-memory machine,
+  start it on demand with `Dictar.bat` instead.
 
 ---
 
-## 📦 Compilar un `.exe` portable (PyInstaller)
+## Build a portable `.exe` (PyInstaller)
 
-Para que cualquiera lo corra **sin instalar Python**:
+So anyone can run it **without installing Python**:
 
 ```bash
 pip install pyinstaller
-pyinstaller --noconfirm --windowed --onedir --name VozLocal --paths src \
-  --collect-all ctranslate2 --collect-all faster_whisper --collect-all av \
+pyinstaller --noconfirm --windowed --onedir --name VozLocal --paths src ^
+  --collect-all ctranslate2 --collect-all faster_whisper --collect-all av ^
   --collect-all sounddevice --collect-all pynput --hidden-import pyperclip entry.py
 ```
 
-Resultado: carpeta `dist\VozLocal\` con `VozLocal.exe` (copiar la carpeta = portable).
+Result: a `dist\VozLocal\` folder containing `VozLocal.exe`. Copy the **whole folder**, not
+just the executable, because the native libraries live beside it.
 
-- **Modelo:** se descarga **una vez** en el primer arranque (requiere internet esa vez; queda en la caché).
-- **Copiar la carpeta entera** (no solo el .exe) — las librerías nativas van al lado.
-- El punto de entrada `entry.py` está en la raíz del repo.
+---
 
-## 🧪 Tests
+## Tests
 
 ```bash
 pytest
 ```
 
-## 📄 Licencia
+---
 
-MIT — haz lo que quieras, solo deja el aviso. © VozLocal contributors.
+## Roadmap
+
+- [x] Offline EN/ES dictation with overlay and live voice bars
+- [ ] Configurable pill position and colours
+- [ ] Transcribe audio files (clips)
+- [ ] Portable `.exe` packaging
+- [ ] Punctuation and paragraph formatting
 
 ---
 
-**Hecho con 🎙️ para que la gente con una PC vieja también pueda dictar.**
+## License
+
+MIT. Do what you want, just keep the notice. © VozLocal contributors.
+
+---
+
+**Leer en español: [LEEME.md](LEEME.md)**

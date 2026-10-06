@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "vozlocal"
 version = "0.1.0"
-description = "Dictado de voz offline (ES/EN), sin nube y sin límites, optimizado para PCs de bajos recursos."
+description = "Offline voice dictation (ES/EN), no cloud and no limits, tuned for low-end PCs."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
