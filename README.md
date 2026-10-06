@@ -17,9 +17,10 @@ focus, in this case Microsoft Word.
 
 ![Full demo: dictating into Word while the overlay shows listening, transcribing, done](assets/vozlocal-demo.gif)
 
-**▶ [Watch the same demo with audio](assets/vozlocal-demo.mp4)** - spoken in non-native English,
-and it still comes out right: 28 words, zero typos. GitHub opens the MP4 in its own player,
-with sound.
+**The same demo with audio** - spoken in non-native English, and it still comes out right:
+28 words, zero typos. Press play, it has sound.
+
+https://github.com/user-attachments/assets/3358f7b3-5787-49d6-a6be-644522253ea0
 
 **The overlay, zoomed in** from that same recording: listening with the live voice bars, then
 transcribing, then done.

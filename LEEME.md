@@ -15,8 +15,10 @@ activa, acá va directo a Microsoft Word.
 
 ![Demo completo: dictado en Word mientras el colgante muestra escuchando, transcribiendo y listo](assets/vozlocal-demo.gif)
 
-**▶ [Ver el mismo demo con audio](assets/vozlocal-demo.mp4)** - hablado en inglés no nativo, y
-aun así sale bien: 28 palabras, sin un solo error. GitHub lo abre en su reproductor, con sonido.
+**El mismo demo con audio** - hablado en inglés no nativo, y aun así sale bien: 28 palabras,
+sin un solo error. Dale play, tiene sonido.
+
+https://github.com/user-attachments/assets/3358f7b3-5787-49d6-a6be-644522253ea0
 
 **El colgante, ampliado** de esa misma grabación: escuchando con las barritas de voz, después
 transcribiendo, después listo.
