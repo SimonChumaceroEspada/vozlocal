@@ -12,16 +12,17 @@ only**: no GPU, no internet, no subscription.
 
 ## Demo
 
+**The result** (a still from the recording): press **F9**, speak, press **F9** again, and the
+transcript is pasted into whatever window has focus.
+
+![The transcript pasted into a chat input box](assets/vozlocal-poster.png)
+
+**▶ [Watch the 21-second demo with audio](assets/vozlocal-demo.mp4)** - spoken in non-native
+English, and it still comes out right. GitHub opens the MP4 in its own player with sound.
+
 **The overlay, as the app draws it** (listening with live voice bars, then transcribing, then done):
 
 ![The overlay pill: listening with live voice bars, transcribing, done](assets/pill-states.gif)
-
-**The result.** Press **F9**, speak, press **F9** again. The transcript is pasted into
-whatever window has focus, in this case a chat input box:
-
-<video src="https://raw.githubusercontent.com/SimonChumaceroEspada/vozlocal/master/assets/vozlocal-demo.mp4" controls width="720"></video>
-
-![Dictating with F9 into a chat window](assets/vozlocal-demo.gif)
 
 > Note on the overlay: the pill is a layered, always-on-top window, and screen recorders on
 > Windows do not reliably capture their partial repaints. That is why the pill above is drawn
