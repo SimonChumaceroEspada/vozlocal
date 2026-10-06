@@ -6,7 +6,23 @@ VozLocal es un dictado de voz **100% offline** en **español e inglés** pensado
 **computadoras viejas**. Corre, literalmente, en una **GTX 750 Ti de 2014** con CPU —
 sin tarjeta de video, sin internet y sin pagar suscripción.
 
-*(captura del overlay en `assets/overlay.png` — próximamente)*
+---
+
+## 🎬 Demo
+
+**El resultado** (un cuadro de la grabación): pulsas **F9**, hablas, vuelves a pulsar **F9**,
+y el texto se pega en la ventana que tengas activa. Acá va directo a Microsoft Word, 28
+palabras, sin un solo error.
+
+![El texto pegado en un documento de Word](assets/vozlocal-poster.png)
+
+**▶ [Ver el demo de 21 segundos con audio](assets/vozlocal-demo.mp4)** - hablado en inglés no
+nativo, y aun así sale bien. GitHub lo abre en su reproductor, con sonido.
+
+**El colgante**, recortado de esa misma grabación: escuchando con las barritas de voz, después
+transcribiendo, después listo:
+
+![El colgante: escuchando con barritas, transcribiendo, listo](assets/pill-states.gif)
 
 ---
 
