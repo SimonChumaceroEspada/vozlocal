@@ -10,17 +10,16 @@ sin tarjeta de video, sin internet y sin pagar suscripción.
 
 ## 🎬 Demo
 
-**El resultado** (un cuadro de la grabación): pulsas **F9**, hablas, vuelves a pulsar **F9**,
-y el texto se pega en la ventana que tengas activa. Acá va directo a Microsoft Word, 28
-palabras, sin un solo error.
+Pulsas **F9**, hablas, vuelves a pulsar **F9**. El texto se pega en la ventana que tengas
+activa, acá va directo a Microsoft Word.
 
-![El texto pegado en un documento de Word](assets/vozlocal-poster.png)
+![Demo completo: dictado en Word mientras el colgante muestra escuchando, transcribiendo y listo](assets/vozlocal-demo.gif)
 
-**▶ [Ver el demo de 21 segundos con audio](assets/vozlocal-demo.mp4)** - hablado en inglés no
-nativo, y aun así sale bien. GitHub lo abre en su reproductor, con sonido.
+**▶ [Ver el mismo demo con audio](assets/vozlocal-demo.mp4)** - hablado en inglés no nativo, y
+aun así sale bien: 28 palabras, sin un solo error. GitHub lo abre en su reproductor, con sonido.
 
-**El colgante**, recortado de esa misma grabación: escuchando con las barritas de voz, después
-transcribiendo, después listo:
+**El colgante, ampliado** de esa misma grabación: escuchando con las barritas de voz, después
+transcribiendo, después listo.
 
 ![El colgante: escuchando con barritas, transcribiendo, listo](assets/pill-states.gif)
 

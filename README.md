@@ -12,17 +12,17 @@ only**: no GPU, no internet, no subscription.
 
 ## Demo
 
-**The result** (a still from the recording): press **F9**, speak, press **F9** again, and the
-transcript is pasted into whatever window has focus. Here it goes straight into Microsoft Word,
-28 words, zero typos.
+Press **F9**, speak, press **F9** again. The transcript is pasted into whatever window has
+focus, in this case Microsoft Word.
 
-![The transcript pasted into a Word document](assets/vozlocal-poster.png)
+![Full demo: dictating into Word while the overlay shows listening, transcribing, done](assets/vozlocal-demo.gif)
 
-**▶ [Watch the 21-second demo with audio](assets/vozlocal-demo.mp4)** - spoken in non-native
-English, and it still comes out right. GitHub opens the MP4 in its own player, with sound.
+**▶ [Watch the same demo with audio](assets/vozlocal-demo.mp4)** - spoken in non-native English,
+and it still comes out right: 28 words, zero typos. GitHub opens the MP4 in its own player,
+with sound.
 
-**The overlay**, cropped from that same recording: listening with the live voice bars, then
-transcribing, then done:
+**The overlay, zoomed in** from that same recording: listening with the live voice bars, then
+transcribing, then done.
 
 ![The overlay pill: listening with live voice bars, transcribing, done](assets/pill-states.gif)
 
