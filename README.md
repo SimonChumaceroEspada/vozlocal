@@ -19,6 +19,8 @@ only**: no GPU, no internet, no subscription.
 **The result.** Press **F9**, speak, press **F9** again. The transcript is pasted into
 whatever window has focus, in this case a chat input box:
 
+<video src="https://raw.githubusercontent.com/SimonChumaceroEspada/vozlocal/master/assets/vozlocal-demo.mp4" controls width="720"></video>
+
 ![Dictating with F9 into a chat window](assets/vozlocal-demo.gif)
 
 > Note on the overlay: the pill is a layered, always-on-top window, and screen recorders on
