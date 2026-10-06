@@ -10,6 +10,20 @@ only**: no GPU, no internet, no subscription.
 
 ---
 
+## Demo
+
+![Dictating with F9 into a chat window](assets/vozlocal-demo.gif)
+
+Press **F9**, speak, press **F9** again. The transcript is pasted into whatever window has
+focus, in this case a chat input box.
+
+> Note on the overlay: the floating pill is a layered, always-on-top window, and most screen
+> recorders on Windows do not capture layered windows. That is why this capture shows the
+> result and not the pill itself. The states it displays are documented in
+> [The overlay pill](#the-overlay-pill), and `assets/vozlocal-poster.png` shows the final frame.
+
+---
+
 ## Why it exists
 
 Modern dictation tools send your voice to the cloud and charge per word or per month.
