@@ -12,15 +12,20 @@ only**: no GPU, no internet, no subscription.
 
 ## Demo
 
+**The overlay, as the app draws it** (listening with live voice bars, then transcribing, then done):
+
+![The overlay pill: listening with live voice bars, transcribing, done](assets/pill-states.gif)
+
+**The result.** Press **F9**, speak, press **F9** again. The transcript is pasted into
+whatever window has focus, in this case a chat input box:
+
 ![Dictating with F9 into a chat window](assets/vozlocal-demo.gif)
 
-Press **F9**, speak, press **F9** again. The transcript is pasted into whatever window has
-focus, in this case a chat input box.
-
-> Note on the overlay: the floating pill is a layered, always-on-top window, and most screen
-> recorders on Windows do not capture layered windows. That is why this capture shows the
-> result and not the pill itself. The states it displays are documented in
-> [The overlay pill](#the-overlay-pill), and `assets/vozlocal-poster.png` shows the final frame.
+> Note on the overlay: the pill is a layered, always-on-top window, and screen recorders on
+> Windows do not reliably capture their partial repaints. That is why the pill above is drawn
+> from the app's own overlay code (same size, colours, bar behaviour and states) while the
+> recording shows the real, unedited result. The pill states are also listed in
+> [The overlay pill](#the-overlay-pill).
 
 ---
 
