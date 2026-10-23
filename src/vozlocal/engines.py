@@ -20,9 +20,36 @@ MAX_CHUNK_S = 28.0      # parakeet: cortar audio largo para no inflar memoria
 SEARCH_S = 1.5          # ventana donde se busca el silencio para cortar
 BLOCK_S = 0.05          # resolución de la búsqueda de silencio
 
-DEFAULT_PARAKEET_DIR = (
-    Path.home() / ".cache" / "openwhispr" / "parakeet-models" / "parakeet-tdt-0.6b-v3"
-)
+MODEL_DIR_NAME = "parakeet-tdt-0.6b-v3"
+
+
+def _candidate_dirs(explicit=None):
+    """Carpetas donde se busca el modelo Parakeet, en orden de prioridad."""
+    out = []
+    if explicit:
+        out.append(Path(explicit))
+    env = os.getenv("DICTATE_PARAKEET_DIR")
+    if env:
+        out.append(Path(env))
+    out.append(Path(__file__).resolve().parents[2] / "models" / MODEL_DIR_NAME)   # repo/models/
+    out.append(Path.home() / ".cache" / "vozlocal" / MODEL_DIR_NAME)
+    out.append(Path.home() / ".cache" / "openwhispr" / "parakeet-models" / MODEL_DIR_NAME)
+    return out
+
+
+def resolve_model_dir(explicit=None):
+    """Primera carpeta que tenga el modelo completo. Lanza FileNotFoundError si no hay ninguna."""
+    for d in _candidate_dirs(explicit):
+        if (d / "encoder.int8.onnx").exists() and (d / "tokens.txt").exists():
+            return d
+    buscadas = ", ".join(str(d) for d in _candidate_dirs(explicit))
+    raise FileNotFoundError(
+        "modelo Parakeet no encontrado. Descargalo y descomprimilo en models/"
+        f"{MODEL_DIR_NAME} (o definí DICTATE_PARAKEET_DIR). Buscado en: {buscadas}"
+    )
+
+
+DEFAULT_PARAKEET_DIR = Path.home() / ".cache" / "vozlocal" / MODEL_DIR_NAME
 
 
 def _trim_silence(audio, pad_s=0.3):
@@ -96,7 +123,7 @@ class ParakeetEngine:
     def __init__(self, model_dir=None, threads=None):
         import sherpa_onnx
 
-        d = Path(model_dir or os.getenv("DICTATE_PARAKEET_DIR") or DEFAULT_PARAKEET_DIR)
+        d = resolve_model_dir(model_dir)
         need = ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]
         missing = [f for f in need if not (d / f).exists()]
         if missing:

@@ -56,6 +56,9 @@ VozLocal does the opposite:
 
 ```bash
 pip install faster-whisper sounddevice pynput pyperclip numpy
+
+# optional: fast Parakeet engine (see "Two engines" below)
+pip install "sherpa-onnx>=1.10"
 ```
 
 ### Run
@@ -68,6 +71,49 @@ python -m vozlocal
 
 Or double-click `Dictar.bat`, a ready-made launcher. The Whisper model is downloaded **once**
 on first start (that first run needs internet, after that it is cached).
+
+---
+
+## Two engines: Parakeet (fast) or Whisper (classic)
+
+VozLocal ships **two interchangeable engines**. Pick one in **Settings (F10) → Engine**; no code
+changes needed.
+
+| Engine | Model | Disk | Measured latency\* | Spanish |
+|---|---|---|---|---|
+| **Parakeet** (recommended) | NVIDIA Parakeet TDT 0.6B v3 int8 — sherpa-onnx / ONNX Runtime | 641 MB | **1.3 s** (6.8 s of speech) · **2.7 s** (20.8 s) | ✅ punctuation, accents, casing |
+| Whisper | faster-whisper `small` int8 — CTranslate2 | 466 MB | 3.8 s · 4.1 s | good, no punctuation, more typos |
+
+\* Measured on an **Intel i5-4460** (4 cores, 2014), **no GPU**. Same recording, both engines:
+Whisper wrote `…el estado de la lazaña` and `sigo pensando en lo demónica`; Parakeet wrote
+`…el estado de la lasaña` and `sigo pensando en lo de Mónica`.
+
+**About punctuation:** Parakeet infers it from **prosody**. Speak in one unbroken stream and you get
+plain text; add a short pause at the end of each sentence and it punctuates. VozLocal also
+**capitalizes the first letter and ensures a final period** (it never invents commas or `¿?`).
+
+### Install the Parakeet engine
+
+```bash
+pip install "sherpa-onnx>=1.10"     # or: pip install "vozlocal[parakeet]"
+```
+
+Download the int8 ONNX model and unpack it into `models/parakeet-tdt-0.6b-v3/`:
+
+```bash
+curl -L -o parakeet.tar.bz2 \
+  https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2
+tar xjf parakeet.tar.bz2
+mkdir -p models
+mv sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8 models/parakeet-tdt-0.6b-v3
+```
+
+VozLocal looks for the model in this order: `DICTATE_PARAKEET_DIR` → `models/parakeet-tdt-0.6b-v3/`
+→ `~/.cache/vozlocal/parakeet-tdt-0.6b-v3`. If it is missing, it says so and **falls back to Whisper**.
+
+> 💡 **Don't want to download anything?** The default stays **Whisper `small`**: it downloads itself
+> on first run and works out of the box. Switching engines is one line in `config.json`
+> (`"engine": "parakeet"`) or one click in Settings.
 
 ---
 
@@ -101,22 +147,30 @@ Environment variables:
 
 | Variable | Values | Default | Effect |
 |---|---|---|---|
-| `DICTATE_MODEL` | `base` \| `small` | `small` | `base` is faster, `small` is more accurate |
+| `DICTATE_ENGINE` | `whisper` \| `parakeet` | `whisper` | Transcription engine (also selectable in Settings) |
+| `DICTATE_PARAKEET_DIR` | path | `models/parakeet-tdt-0.6b-v3` | Where the Parakeet model lives |
+| `DICTATE_MODEL` | `base` \| `small` | `small` | Whisper engine only: `base` is faster, `small` is more accurate |
 | `DICTATE_LANG` | `es` \| `en` | auto | Forces one language and ignores F8/F9 |
 
 Settings are also persisted to `config.json` (repo root in development,
 `%APPDATA%\VozLocal` when frozen):
 
 ```json
-{ "model": "small", "autostart": true, "bars": true, "hide_when_idle": true }
+{ "engine": "whisper", "model": "small", "autostart": true, "bars": true, "hide_when_idle": true }
 ```
 
 ---
 
 ## How it works
 
-- **Engine:** [faster-whisper](https://github.com/SYSTRAN/faster-whisper) on **CPU with int8
-  quantization**. No GPU is required.
+- **Engines:** [Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) int8
+  via [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) (fast, ~641 MB) or
+  [faster-whisper](https://github.com/SYSTRAN/faster-whisper) `small` int8 (classic, ~466 MB).
+  Both run on **CPU with int8**; no GPU is required.
+- **Text:** `clean_text()` collapses whitespace, capitalizes the first letter and ensures a
+  final period.
+- **Silence:** before transcribing, audio is trimmed by energy (RMS over 50 ms frames) so long
+  pauses cost nothing; audio longer than 28 s is split at the quietest point.
 - **UI:** `tkinter`, a rounded pill on a transparent window that stays on top of every other
   window.
 - **Reliable language:** each hotkey forces the language instead of auto-detecting.
@@ -131,7 +185,8 @@ Source layout:
 ```
 src/vozlocal/
   __main__.py    entry point and wiring
-  dictation.py   whisper model, microphone, hotkeys, dictation loop
+  engines.py     transcription engines (whisper / parakeet)
+  dictation.py   microphone, hotkeys, dictation loop
   overlay.py     tkinter floating pill
   settings.py    settings window
   config.py      persistent configuration
@@ -158,7 +213,7 @@ about 9 seconds of speech:
 |---|---|---|
 | CPU | 2 x64 cores | 4 cores (i5-4460 @ 3.2 GHz) |
 | System RAM | 4 GB | 8 GB |
-| RAM while dictating | ~200 MB (`base`) | ~435 MB (`small`) |
+| RAM while dictating | ~200 MB (Whisper `base`) | ~800 MB (Parakeet) · ~435 MB (Whisper `small`) |
 | GPU | not required (CPU int8) | not required |
 | Free disk | ~1 GB | ~2 GB |
 | OS | Windows 10 (64-bit) | Windows 11 |
@@ -208,6 +263,8 @@ pytest
 ## Roadmap
 
 - [x] Offline EN/ES dictation with overlay and live voice bars
+- [x] Second switchable engine (NVIDIA Parakeet TDT 0.6B v3 int8 via sherpa-onnx)
+- [x] Text normalization: first-letter capital and final period
 - [ ] Configurable pill position and colours
 - [ ] Transcribe audio files (clips)
 - [ ] Portable `.exe` packaging

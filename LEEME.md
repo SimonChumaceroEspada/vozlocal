@@ -51,6 +51,9 @@ o por mes. VozLocal hace lo contrario:
 ### Instalar dependencias
 ```bash
 pip install faster-whisper sounddevice pynput pyperclip numpy
+
+# opcional: motor rápido Parakeet (ver "Dos motores" abajo)
+pip install "sherpa-onnx>=1.10"
 ```
 
 ### Ejecutar
@@ -61,6 +64,48 @@ python -m vozlocal
 ```
 
 O simplemente doble clic en `Dictar.bat` (lanzador preconfeccionado).
+
+---
+
+## ⚡ Dos motores: Parakeet (rápido) o Whisper (clásico)
+
+VozLocal trae **dos motores intercambiables**. Se elige en **Ajustes (F10) → Motor**, sin tocar código.
+
+| Motor | Modelo | Disco | Latencia medida\* | Español |
+|---|---|---|---|---|
+| **Parakeet** (recomendado) | NVIDIA Parakeet TDT 0.6B v3 int8 — sherpa-onnx / ONNX Runtime | 641 MB | **1.3 s** (6.8 s de voz) · **2.7 s** (20.8 s) | ✅ puntuación, acentos, mayúsculas |
+| Whisper | faster-whisper `small` int8 — CTranslate2 | 466 MB | 3.8 s · 4.1 s | bueno, sin puntuación, más erratas |
+
+\* Medido en un **Intel i5-4460** (4 núcleos, 2014), **sin GPU**. La misma grabación en ambos motores:
+Whisper escribió `…el estado de la lazaña` y `sigo pensando en lo demónica`; Parakeet escribió
+`…el estado de la lasaña` y `sigo pensando en lo de Mónica`.
+
+**Sobre la puntuación:** Parakeet la deduce de la **prosodia**. Si hablás de corrido sin pausas,
+devuelve texto plano; con una micro-pausa al final de cada oración, la puntúa. VozLocal además
+**capitaliza la primera letra y asegura punto final** (no inventa comas ni signos `¿?`).
+
+### Instalar el motor Parakeet
+
+```bash
+pip install "sherpa-onnx>=1.10"     # o: pip install "vozlocal[parakeet]"
+```
+
+Descargá el modelo ONNX int8 y descomprimilo en `models/parakeet-tdt-0.6b-v3/`:
+
+```bash
+curl -L -o parakeet.tar.bz2 \
+  https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2
+tar xjf parakeet.tar.bz2
+mkdir -p models
+mv sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8 models/parakeet-tdt-0.6b-v3
+```
+
+VozLocal busca el modelo en este orden: `DICTATE_PARAKEET_DIR` → `models/parakeet-tdt-0.6b-v3/`
+→ `~/.cache/vozlocal/parakeet-tdt-0.6b-v3`. Si no está, avisa y **sigue con Whisper**.
+
+> 💡 **¿No querés descargar nada?** El default sigue siendo **Whisper `small`**: se baja solo la
+> primera vez y funciona out-of-the-box. Cambiar de motor es una línea en `config.json`
+> (`"engine": "parakeet"`) o un clic en Ajustes.
 
 ---
 
@@ -85,7 +130,9 @@ O simplemente doble clic en `Dictar.bat` (lanzador preconfeccionado).
 ### Atajos y configuración (variables de entorno)
 | Variable | Valores | Default | Qué hace |
 |---|---|---|---|
-| `DICTATE_MODEL` | `base` \| `small` | `small` | `base` = más rápido; `small` = más preciso. |
+| `DICTATE_ENGINE` | `whisper` \| `parakeet` | `whisper` | Motor de transcripción (también en Ajustes). |
+| `DICTATE_PARAKEET_DIR` | ruta | `models/parakeet-tdt-0.6b-v3` | Dónde está el modelo Parakeet. |
+| `DICTATE_MODEL` | `base` \| `small` | `small` | Solo motor Whisper: `base` = más rápido; `small` = más preciso. |
 | `DICTATE_LANG` | `es` \| `en` | auto | Fuerza el idioma (ignora F8/F9). |
 
 ---
@@ -105,8 +152,13 @@ dictado" siempre disponible). El lanzador `Dictar.vbs` es silencioso (sin ventan
 
 ## 🧠 ¿Cómo funciona?
 
-- **Motor:** [faster-whisper](https://github.com/SYSTRAN/faster-whisper) en **CPU (int8)**.
-  No necesitas GPU; el modelo `small` transcribe en ~1.5–5s por frase en un CPU de 4 núcleos.
+- **Motores:** [Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) int8
+  vía [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) (rápido, ~641 MB) o
+  [faster-whisper](https://github.com/SYSTRAN/faster-whisper) `small` int8 (clásico, ~466 MB).
+  Ambos en **CPU (int8)**: no necesitas GPU.
+- **Texto:** `clean_text()` colapsa espacios, capitaliza la primera letra y asegura punto final.
+- **Silencio:** antes de transcribir se recorta el audio por energía (RMS en tramas de 50 ms)
+  para no procesar pausas largas; lo que pasa de 28 s se trocea por el punto más silencioso.
 - **UI:** `tkinter` — un pill redondeado (sobre fondo transparente en Windows) que se queda
   encima de todas tus ventanas.
 - **Idioma fiable:** cada tecla **fuerza** el idioma en lugar de auto-detectar, que en
@@ -125,7 +177,7 @@ Intel i5-4460, 4 núcleos, GTX 750 Ti.)
 |---|---|---|
 | CPU | 2 núcleos x64 | **4 núcleos** (i5-4460 @3.2 GHz) |
 | RAM del sistema | 4 GB | 8 GB |
-| **RAM en uso (dictado)** | ~200 MB (modelo `base`) | **~435 MB** (modelo `small`) |
+| **RAM en uso (dictado)** | ~200 MB (Whisper `base`) | **~800 MB** (Parakeet) · ~435 MB (Whisper `small`) |
 | GPU | ❌ No requerida (CPU int8) | ❌ No requerida |
 | Disco libre | ~1 GB | ~2 GB |
 | SO | Windows 10 (64-bit) | Windows 11 |
@@ -154,6 +206,8 @@ Probado en una **NVIDIA GTX 750 Ti (2 GB, Maxwell)** con CPU:
 ## 🗺️ Roadmap
 
 - [x] Dictado EN/ES offline con overlay y barritas de voz
+- [x] Segundo motor seleccionable (NVIDIA Parakeet TDT 0.6B v3 int8 vía sherpa-onnx)
+- [x] Normalización del texto: mayúscula inicial y punto final
 - [ ] Posición / colores del colgante configurables
 - [ ] Transcribir archivos de audio (clips)
 - [ ] Empaquetado como `.exe` portable (PyInstaller)
