@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-"""vozlocal.dictation — núcleo: modelo faster-whisper, micrófono, atajos y dictado.
+"""vozlocal.dictation — núcleo: motor de transcripción, micrófono, atajos y dictado.
 
-Vive en CPU (int8) para correr en hardware modesto (ordenadores sin GPU o con
-tarjetas antiguas). F8 → español, F9 → inglés, todo offline.
+Motor elegible en config ("engine"): parakeet (sherpa-onnx, rápido) o whisper
+(faster-whisper int8). Todo en CPU para correr en hardware modesto.
+F8 → español, F9 → inglés, todo offline.
 """
 import sys
 import ctypes
@@ -13,8 +14,8 @@ import time
 import numpy as np
 import sounddevice as sd
 from pynput import keyboard
-from faster_whisper import WhisperModel
 
+from . import engines
 from .text import clean_text
 from . import config as _config
 
@@ -48,12 +49,14 @@ def beep(freq=1000, dur=0.09):
 
 
 # Cargar modelo (una vez, al arrancar la app)
-print(f"[vozlocal] cargando modelo '{MODEL}' ({DEVICE}/{COMPUTE})...", flush=True)
+ENGINE = os.getenv("DICTATE_ENGINE", _cfg.get("engine", "whisper")).lower()
+print(f"[vozlocal] cargando motor '{ENGINE}' (cpu)...", flush=True)
 try:
-    model = WhisperModel(MODEL, device=DEVICE, compute_type=COMPUTE, cpu_threads=os.cpu_count())
+    engine = engines.create({**_cfg, "engine": ENGINE, "model": MODEL})
 except Exception as e:
-    print(f"[vozlocal] ERROR al cargar modelo: {e}", flush=True)
+    print(f"[vozlocal] ERROR al cargar motor: {e}", flush=True)
     sys.exit(1)
+print(f"[vozlocal] motor listo: {engine.name}", flush=True)
 
 if FORCE_LANG:
     _lista = f"idioma fijado: {FORCE_LANG.upper()}"
@@ -135,12 +138,11 @@ def stop():
     lang = FORCE_LANG or _state["lang"] or "es"
     print(f"   (idioma: {lang.upper()})", flush=True)
     try:
-        segs, info = model.transcribe(audio, language=lang, beam_size=1, vad_filter=VAD)
+        text = engine.transcribe(audio, lang)
     except Exception as e:
         print(f"[vozlocal] error transcribiendo: {e}", flush=True)
         _ui_set("idle")
         return
-    text = "".join(s.text for s in segs)
     text = clean_text(text)
     dt = time.time() - t0
     if text:

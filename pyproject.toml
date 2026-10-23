@@ -26,6 +26,11 @@ dependencies = [
     "numpy>=1.24",
 ]
 
+[project.optional-dependencies]
+# Motor rápido (NVIDIA Parakeet TDT 0.6B v3 int8 vía sherpa-onnx).
+# Se elige en Ajustes → Motor: Parakeet.  Instalar: pip install "vozlocal[parakeet]"
+parakeet = ["sherpa-onnx>=1.10"]
+
 [project.scripts]
 vozlocal = "vozlocal.__main__:main"
 

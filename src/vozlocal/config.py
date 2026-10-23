@@ -19,7 +19,13 @@ def _config_path():
 
 
 CONFIG_PATH = _config_path()
-DEFAULTS = {"model": "small", "autostart": True, "bars": True, "hide_when_idle": True}
+DEFAULTS = {
+    "engine": "whisper",     # "parakeet" (rápido, ONNX) | "whisper" (faster-whisper)
+    "model": "small",        # solo aplica al motor whisper
+    "autostart": True,
+    "bars": True,
+    "hide_when_idle": True,
+}
 
 
 def load_config():
