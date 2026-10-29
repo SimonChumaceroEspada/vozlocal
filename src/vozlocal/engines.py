@@ -19,6 +19,7 @@ SR = 16000
 MAX_CHUNK_S = 28.0      # parakeet: cortar audio largo para no inflar memoria
 SEARCH_S = 1.5          # ventana donde se busca el silencio para cortar
 BLOCK_S = 0.05          # resolución de la búsqueda de silencio
+SILENCE_SPLIT_S = 1.0   # pausa que separa dos tramos (parakeet se degrada con silencios largos)
 
 MODEL_DIR_NAME = "parakeet-tdt-0.6b-v3"
 
@@ -67,6 +68,59 @@ def _trim_silence(audio, pad_s=0.3):
     start = max(0, idx[0] * frame - int(pad_s * SR))
     end = min(len(audio), (idx[-1] + 1) * frame + int(pad_s * SR))
     return audio[start:end]
+
+
+def _split_on_silence(audio, min_silence_s=SILENCE_SPLIT_S):
+    """Parte el audio en segmentos de voz separados por pausas largas.
+
+    Parakeet no digiere bien un silencio largo en medio del buffer (se degrada o
+    pierde palabras), así que cada pausa de >= min_silence_s pasa a ser un corte:
+    se transcribe segmento por segmento y se unen con un espacio.
+    """
+    frame = int(BLOCK_S * SR)
+    n = len(audio) // frame
+    if n < 2:
+        return [audio]
+    rms = np.sqrt(np.mean(audio[: n * frame].reshape(n, frame) ** 2, axis=1))
+    thr = max(0.004, 0.12 * float(np.percentile(rms, 95)))
+    voiced = rms > thr
+    min_frames = max(int(min_silence_s / BLOCK_S), 2)
+
+    bounds = []
+    start = None
+    i = 0
+    while i < n:
+        if voiced[i]:
+            if start is None:
+                start = i
+            i += 1
+            continue
+        j = i
+        while j < n and not voiced[j]:
+            j += 1
+        if j - i >= min_frames and start is not None:
+            bounds.append((start * frame, i * frame))
+            start = None
+        i = j
+    if start is not None:
+        bounds.append((start * frame, len(audio)))
+
+    if not bounds:
+        return [audio]
+
+    pad = int(0.2 * SR)
+    segs = [audio[max(0, s - pad): min(len(audio), e + pad)] for s, e in bounds]
+
+    # unir restos muy cortos (<0.3 s) al segmento anterior para no perder sílabas
+    out = []
+    for seg in segs:
+        if out and len(seg) < int(0.3 * SR):
+            out[-1] = np.concatenate([out[-1], seg])
+        elif out and len(out[-1]) < int(0.3 * SR):
+            out[-1] = np.concatenate([out[-1], seg])
+        else:
+            out.append(seg)
+    return out
 
 
 def _chunks(audio, max_s=MAX_CHUNK_S):
@@ -147,16 +201,17 @@ class ParakeetEngine:
         if len(a) < SR // 5:            # menos de 200 ms de voz: nada que transcribir
             return ""
         parts = []
-        for chunk in _chunks(a):
-            chunk = chunk.reshape(-1)
-            if len(chunk) < SR // 10:      # menos de 100 ms: ignorar
-                continue
-            stream = self.rec.create_stream()
-            stream.accept_waveform(SR, chunk)
-            self.rec.decode_stream(stream)
-            text = stream.result.text.strip()
-            if text:
-                parts.append(text)
+        for seg in _split_on_silence(a):
+            for chunk in _chunks(seg):
+                chunk = chunk.reshape(-1)
+                if len(chunk) < SR // 10:      # menos de 100 ms: ignorar
+                    continue
+                stream = self.rec.create_stream()
+                stream.accept_waveform(SR, chunk)
+                self.rec.decode_stream(stream)
+                text = stream.result.text.strip()
+                if text:
+                    parts.append(text)
         return " ".join(parts)
 
 
